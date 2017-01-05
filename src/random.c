@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <unistd.h>
 
 int main()
 {
@@ -15,16 +16,34 @@ int main()
 
     /* Find boundaries of the screen */
     getmaxyx(stdscr, my, mx);
+    // printw("x %d y %d ", mx, my);
+    int mov_x, mov_y;
 
-    printw("x %d y %d ", mx, my);
+    mov_x = mov_y = 0;
 
-    while ((ch = getch()) != 'q') {
-        getyx(stdscr, cy, cx);
-        
-        if (cy == (my - 1)) {
-            clear();
-            move(0, 0);
+    while (1) {
+    // while ((ch = getch()) != 'q') {
+        erase();
+
+        if (mov_x == (mx - 1)) {
+            move(++mov_y, 0);
+            mov_x = 0;
         }
+        if (mov_y == (my - 1)) {
+            mov_y = mov_x = 0;
+            move(mov_y, mov_x);
+        }
+        move(mov_y, mov_x);
+        addch('o');
+        //printw("x %d y %d", mov_x, mov_y);
+        //printw("cursor x %d cursor y %d", cx, cy);
+        usleep(50000);
+        refresh();
+        mov_x++;
+        //move(mov_y, mov_x);
+        //mvaddch(mov_y, mov_x, 'o');
+        // sleep for a bit
+        /*
 
         switch (ch) {
         case KEY_UP:
@@ -38,6 +57,7 @@ int main()
             break;
         }
         refresh();
+        */
     }
     endwin();
     return 0;
