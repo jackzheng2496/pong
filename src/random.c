@@ -57,22 +57,9 @@ int main()
     win.starty = 1;
     win.startx = 1;
 
-    int wx, wy, width, height;
-
-    height = 4;
-    width = 4;
-
-    wx = 0;
-    wy = 0;
-
-    /*
-    my_win = newwin(my-2, mx-2, wx+1, wy+1);
-    wborder(my_win, '|', '|', '-','-','+','+','+','+');
-    wrefresh(my_win);
-    */
-
     create_win(&win);
     delete_win(&win);
+
     struct pong p;
 
     p.x = mx / 2;
@@ -85,9 +72,10 @@ int main()
      * but functionality is not available on my terminal :\
      */
     curs_set(0);
-    while (1) ;
     while (1) {
         erase();
+
+        /* Gotta keep refreshing border */
 
         if (p.x == (mx-2)) {
             p.orientation = LEFT;
@@ -95,11 +83,21 @@ int main()
             p.orientation = RIGHT;
         }
 
+        create_win(&win);
+        delete_win(&win);  
         move(p.y, p.x);
         addch('o');
         refresh();
-        usleep(50000);
-        
+        while(1);
+
+        move(p.y, p.x);
+        addch('o');
+        refresh();
+        napms(50);
+
+        create_win(&win);
+        delete_win(&win);
+
         p.x += (p.orientation == RIGHT) ? 1 : -1;
         
         /*
