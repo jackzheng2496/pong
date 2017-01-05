@@ -1,7 +1,7 @@
 CC = gcc
 TARGET = ./bin/pong
 
-all:
+all: $(OBJ)
 	mkdir -p ./bin
 	$(CC) -o $(TARGET) ./src/random.c -lncurses
 
