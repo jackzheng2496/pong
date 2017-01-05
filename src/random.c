@@ -1,11 +1,18 @@
 #include <ncurses.h>
 #include <unistd.h>
 
+enum ORIENTATION { RIGHT, LEFT };
+
+struct pong {
+    int x;
+    int y;
+    int orientation;
+};
+
 int main()
 {
     int ch;
     int mx, my;
-    int cx, cy;
     /*
      * Initialization
      */
@@ -17,14 +24,37 @@ int main()
     /* Find boundaries of the screen */
     getmaxyx(stdscr, my, mx);
     // printw("x %d y %d ", mx, my);
-    int mov_x, mov_y;
+    struct pong p;
 
-    mov_x = mov_y = 0;
+    p.x = mx / 2;
+    p.y = my / 2;
+
+    p.orientation = RIGHT;
+
+    /*
+     * well, this is suppose to remove cursor, 
+     * but functionality is not available on my terminal :\
+     */
+    curs_set(0);
 
     while (1) {
-    // while ((ch = getch()) != 'q') {
         erase();
 
+        if (p.x == (mx-2)) {
+            p.orientation = LEFT;
+        } else if (p.x == 0) {
+            p.orientation = RIGHT;
+        }
+
+        move(p.y, p.x);
+        addch('o');
+        refresh();
+        usleep(50000);
+        //refresh();
+        
+        p.x += (p.orientation == RIGHT) ? 1 : -1;
+
+        /*
         if (mov_x == (mx - 1)) {
             move(++mov_y, 0);
             mov_x = 0;
@@ -35,13 +65,10 @@ int main()
         }
         move(mov_y, mov_x);
         addch('o');
-        //printw("x %d y %d", mov_x, mov_y);
-        //printw("cursor x %d cursor y %d", cx, cy);
         usleep(50000);
         refresh();
         mov_x++;
-        //move(mov_y, mov_x);
-        //mvaddch(mov_y, mov_x, 'o');
+        */
         // sleep for a bit
         /*
 
