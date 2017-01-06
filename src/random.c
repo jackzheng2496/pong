@@ -87,19 +87,6 @@ int main()
         if (p.y == (win.height-1) || p.y == 0) {
             p.o_ud = (p.o_ud == UP) ? DOWN : UP;
         }
-        /*
-        if (p.x == (win.width-1)) {
-            p.o_rl = LEFT;
-        } else if (p.x == 0) {
-            p.o_rl = RIGHT;
-        }
-
-        if (p.y == (win.height-1)) {
-            p.o_rl = LEFT;
-        } else if (p.y == 0) {
-            p.o_rl = RIGHT;
-        }
-        */
 
         create_win(&win);
         wborder(win.win, '|','|','-','-','+','+','+','+');
@@ -111,23 +98,8 @@ int main()
 
         /* Just bouncing back and forth right now */
         /* Do some ball movement here */
-        if (p.o_ud == UP && p.o_rl == RIGHT) {
-            p.x += 1;
-            p.y -= 1;
-        } else if (p.o_ud == UP && p.o_rl == LEFT) {
-            p.x -= 1;
-            p.y -= 1;
-        } else if (p.o_ud == DOWN && p.o_rl == RIGHT) {
-            p.x += 1;
-            p.y += 1;
-        } else if (p.o_ud == DOWN && p.o_rl == LEFT) {
-            p.x -= 1;
-            p.y += 1;
-        }
-        /*
         p.x += (p.o_rl == RIGHT) ? 1 : -1;
-        p.y += (p.o_rl == RIGHT) ? 1 : -1;
-        */
+        p.y += (p.o_ud == UP) ? -1 : 1;
     }
     endwin();
     return 0;
