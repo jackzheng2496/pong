@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 enum ORIENTATION { RIGHT, LEFT };
 
@@ -45,6 +46,9 @@ int main()
     cbreak();
     keypad(stdscr, TRUE);
 
+    /* Removes cursor from terminal .. Find some way to put it back */
+    fputs("\e[?25l", stdout);
+
     /* Find boundaries of the screen */
     getmaxyx(stdscr, my, mx);
     
@@ -74,9 +78,15 @@ int main()
 
         /* Gotta keep refreshing border */
 
-        if (p.x == (win.width-2)) {
+        if (p.x == (win.width-1)) {
             p.orientation = LEFT;
-        } else if (p.x == 1) {
+        } else if (p.x == 0) {
+            p.orientation = RIGHT;
+        }
+
+        if (p.y == (win.height-1)) {
+            p.orientation = LEFT;
+        } else if (p.y == 0) {
             p.orientation = RIGHT;
         }
 
@@ -84,10 +94,11 @@ int main()
         wborder(win.win, '|','|','-','-','+','+','+','+');
         mvwprintw(win.win, p.y, p.x, "%c", 'o');
         wrefresh(win.win);
-        napms(40);
+        napms(50);
 
         delwin(win.win);
         p.x += (p.orientation == RIGHT) ? 1 : -1;
+        p.y += (p.orientation == RIGHT) ? 1 : -1;
     }
     endwin();
     return 0;
