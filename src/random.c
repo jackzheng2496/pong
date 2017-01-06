@@ -63,7 +63,7 @@ int main()
     struct pong p;
 
     p.x = mx / 2;
-    p.y = my / 2;
+    p.y = my / 2 - 1;
 
     p.orientation = RIGHT;
 
@@ -91,7 +91,7 @@ int main()
         //move(p.y, p.x);
         //addch('o');
         //refresh();
-        napms(50);
+        napms(40);
  /*
         move(p.y, p.x);
         addch('o');
