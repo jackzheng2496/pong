@@ -69,6 +69,7 @@ int main()
     p.y = my / 2 - 1;
 
     p.o_rl = RIGHT;
+    p.o_ud = DOWN;
 
     /*
      * well, this is suppose to remove cursor, 
@@ -79,7 +80,14 @@ int main()
         erase();
 
         /* Gotta keep refreshing border */
+        if (p.x == (win.width-1) || p.x == 0) {
+            p.o_rl = (p.o_rl == RIGHT) ? LEFT : RIGHT;
+        }
 
+        if (p.y == (win.height-1) || p.y == 0) {
+            p.o_ud = (p.o_ud == UP) ? DOWN : UP;
+        }
+        /*
         if (p.x == (win.width-1)) {
             p.o_rl = LEFT;
         } else if (p.x == 0) {
@@ -91,6 +99,7 @@ int main()
         } else if (p.y == 0) {
             p.o_rl = RIGHT;
         }
+        */
 
         create_win(&win);
         wborder(win.win, '|','|','-','-','+','+','+','+');
@@ -101,8 +110,24 @@ int main()
         delwin(win.win);
 
         /* Just bouncing back and forth right now */
+        /* Do some ball movement here */
+        if (p.o_ud == UP && p.o_rl == RIGHT) {
+            p.x += 1;
+            p.y -= 1;
+        } else if (p.o_ud == UP && p.o_rl == LEFT) {
+            p.x -= 1;
+            p.y -= 1;
+        } else if (p.o_ud == DOWN && p.o_rl == RIGHT) {
+            p.x += 1;
+            p.y += 1;
+        } else if (p.o_ud == DOWN && p.o_rl == LEFT) {
+            p.x -= 1;
+            p.y += 1;
+        }
+        /*
         p.x += (p.o_rl == RIGHT) ? 1 : -1;
         p.y += (p.o_rl == RIGHT) ? 1 : -1;
+        */
     }
     endwin();
     return 0;
