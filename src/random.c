@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-enum ORIENTATION { RIGHT, LEFT };
+enum ORIENTATION { RIGHT, LEFT, UP, DOWN };
 
 struct window {
     int startx;
@@ -31,7 +31,9 @@ void delete_win(struct window *window)
 struct pong {
     int x;
     int y;
-    int orientation;
+    int o_rl;
+    int o_ud;
+
 };
 
 int main()
@@ -66,7 +68,7 @@ int main()
     p.x = mx / 2;
     p.y = my / 2 - 1;
 
-    p.orientation = RIGHT;
+    p.o_rl = RIGHT;
 
     /*
      * well, this is suppose to remove cursor, 
@@ -79,15 +81,15 @@ int main()
         /* Gotta keep refreshing border */
 
         if (p.x == (win.width-1)) {
-            p.orientation = LEFT;
+            p.o_rl = LEFT;
         } else if (p.x == 0) {
-            p.orientation = RIGHT;
+            p.o_rl = RIGHT;
         }
 
         if (p.y == (win.height-1)) {
-            p.orientation = LEFT;
+            p.o_rl = LEFT;
         } else if (p.y == 0) {
-            p.orientation = RIGHT;
+            p.o_rl = RIGHT;
         }
 
         create_win(&win);
@@ -97,8 +99,10 @@ int main()
         napms(50);
 
         delwin(win.win);
-        p.x += (p.orientation == RIGHT) ? 1 : -1;
-        p.y += (p.orientation == RIGHT) ? 1 : -1;
+
+        /* Just bouncing back and forth right now */
+        p.x += (p.o_rl == RIGHT) ? 1 : -1;
+        p.y += (p.o_rl == RIGHT) ? 1 : -1;
     }
     endwin();
     return 0;
