@@ -57,9 +57,6 @@ int main()
     win.starty = 1;
     win.startx = 1;
 
-    create_win(&win);
-    delete_win(&win);
-
     struct pong p;
 
     p.x = mx / 2;
@@ -84,40 +81,13 @@ int main()
         }
 
         create_win(&win);
-        //delete_win(&win); 
         wborder(win.win, '|','|','-','-','+','+','+','+');
         mvwprintw(win.win, p.y, p.x, "%c", 'o');
         wrefresh(win.win);
-        //move(p.y, p.x);
-        //addch('o');
-        //refresh();
         napms(40);
- /*
-        move(p.y, p.x);
-        addch('o');
-        refresh();
-        napms(50);
 
-        create_win(&win);
-        delete_win(&win);
-*/
         delwin(win.win);
         p.x += (p.orientation == RIGHT) ? 1 : -1;
-        
-        /*
-        switch (ch) {
-        case KEY_UP:
-            printw("up ");
-            break;
-        case KEY_DOWN:
-            printw("down ");
-            break;
-        default:
-            printw("%c ", ch);
-            break;
-        }
-        refresh();
-        */
     }
     endwin();
     return 0;
