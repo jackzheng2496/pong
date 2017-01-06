@@ -77,19 +77,22 @@ int main()
 
         /* Gotta keep refreshing border */
 
-        if (p.x == (mx-2)) {
+        if (p.x == (win.width-2)) {
             p.orientation = LEFT;
-        } else if (p.x == 0) {
+        } else if (p.x == 1) {
             p.orientation = RIGHT;
         }
 
         create_win(&win);
-        delete_win(&win);  
-        move(p.y, p.x);
-        addch('o');
-        refresh();
-        while(1);
-
+        //delete_win(&win); 
+        wborder(win.win, '|','|','-','-','+','+','+','+');
+        mvwprintw(win.win, p.y, p.x, "%c", 'o');
+        wrefresh(win.win);
+        //move(p.y, p.x);
+        //addch('o');
+        //refresh();
+        napms(50);
+ /*
         move(p.y, p.x);
         addch('o');
         refresh();
@@ -97,7 +100,8 @@ int main()
 
         create_win(&win);
         delete_win(&win);
-
+*/
+        delwin(win.win);
         p.x += (p.orientation == RIGHT) ? 1 : -1;
         
         /*
