@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 enum ORIENTATION { RIGHT, LEFT, UP, DOWN };
 
@@ -10,6 +11,11 @@ struct window {
     int width;
     int height;
     WINDOW *win;
+};
+
+struct paddle {
+  int top;
+  int bottom;
 };
 
 void create_win(struct window *window)
@@ -33,8 +39,19 @@ struct pong {
     int y;
     int o_rl;
     int o_ud;
-
 };
+
+struct render {
+  struct pong *p;
+  struct window *w; 
+};
+
+void printPaddle(struct window *window, struct paddle *pd)
+{
+  for (int i = pd->top; i <= pd->bottom; i++) {
+    mvwprintw(window->win, i, 1, "%c", 'T');
+  }
+}
 
 int main()
 {
@@ -46,8 +63,7 @@ int main()
     initscr();
     noecho();
     cbreak();
-    keypad(stdscr, TRUE);
-
+    nodelay(stdscr,true);
     /* Removes cursor from terminal .. Find some way to put it back */
     fputs("\e[?25l", stdout);
 
@@ -64,6 +80,7 @@ int main()
     win.startx = 1;
 
     struct pong p;
+    struct paddle pd = {-3+my/2, 3+my/2};
 
     p.x = mx / 2;
     p.y = my / 2 - 1;
@@ -76,10 +93,18 @@ int main()
      * but functionality is not available on my terminal :\
      */
     curs_set(0);
+    create_win(&win);
+    //cbreak();
+    //nodelay(win.win,0); 
+
+    // Create another thread for rendering ball movement
+    char c = 'N';
     while (1) {
-        erase();
+        c = getch();
+        //erase();
 
         /* Gotta keep refreshing border */
+        
         if (p.x == (win.width-1) || p.x == 0) {
             p.o_rl = (p.o_rl == RIGHT) ? LEFT : RIGHT;
         }
@@ -87,20 +112,39 @@ int main()
         if (p.y == (win.height-1) || p.y == 0) {
             p.o_ud = (p.o_ud == UP) ? DOWN : UP;
         }
-
-        create_win(&win);
+        
+// Co-creator - Norman Le
         wborder(win.win, '|','|','-','-','+','+','+','+');
         mvwprintw(win.win, p.y, p.x, "%c", 'o');
+        printPaddle(&win, &pd);
         wrefresh(win.win);
         napms(50);
-
-        delwin(win.win);
-
+        
+        switch (c) {
+        case 'w':
+          if (pd.top - 1 > 0) {
+            pd.top -= 1;
+            pd.bottom -= 1;
+          }
+          break;
+        case 's':
+          if (pd.bottom + 1 < my-3) {
+            pd.top += 1;
+            pd.bottom += 1;
+          }
+          break;
+        default:
+          break;
+        }
+        
+        wclear(win.win);
         /* Just bouncing back and forth right now */
         /* Do some ball movement here */
+        
         p.x += (p.o_rl == RIGHT) ? 1 : -1;
         p.y += (p.o_ud == UP) ? -1 : 1;
     }
+    //pthread_join(ball,NULL); 
     endwin();
     return 0;
 }
