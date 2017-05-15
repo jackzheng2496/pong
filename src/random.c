@@ -26,14 +26,6 @@ void create_win(struct window *window)
     wrefresh(window->win);
 }
 
-void delete_win(struct window *window)
-{
-    wborder(window->win, '|', '|', '-', '-', '+', '+', '+', '+');
-
-    wrefresh(window->win);
-    delwin(window->win);
-}
-
 struct pong {
     int x;
     int y;
@@ -43,14 +35,44 @@ struct pong {
 
 struct render {
   struct pong *p;
-  struct window *w; 
+  struct window *w;
 };
 
 void printPaddle(struct window *window, struct paddle *pd)
 {
+  mvwprintw(window->win, pd->top-1, 2, "%c", '-');
   for (int i = pd->top; i <= pd->bottom; i++) {
-    mvwprintw(window->win, i, 1, "%c", 'T');
+    mvwprintw(window->win, i, 1, "%c", '|');
+    mvwprintw(window->win, i, 3, "%c", '|');
   }
+  mvwprintw(window->win, pd->bottom+1, 2, "%c", '-');
+}
+
+void *renderBall(void *vargs)
+{
+  struct render *r = (struct render *) vargs;
+  struct pong *p = r->p;
+  struct window *win = r->w;
+
+  while (1) {
+
+    // TODO: Collision detection here
+
+    if (p->x == (win->width-1) || p->x == 0) {
+        p->o_rl = (p->o_rl == RIGHT) ? LEFT : RIGHT;
+    }
+
+    if (p->y == (win->height-1) || p->y == 0) {
+        p->o_ud = (p->o_ud == UP) ? DOWN : UP;
+    }
+
+    p->x += (p->o_rl == RIGHT) ? 1 : -1;
+    p->y += (p->o_ud == UP) ? -1 : 1;
+
+    napms(50);
+  }
+
+  return NULL;
 }
 
 int main()
@@ -72,6 +94,7 @@ int main()
     
     WINDOW *my_win;
 
+    struct render r;
     struct window win;
 
     win.height = my - 2;
@@ -98,37 +121,23 @@ int main()
     //nodelay(win.win,0); 
 
     // Create another thread for rendering ball movement
+    r.p = &p;
+    r.w = &win;
+    pthread_t ball;
+    pthread_create(&ball, NULL, renderBall, (void*)&r);
     char c = 'N';
     while (1) {
         c = getch();
-        //erase();
-
-        /* Gotta keep refreshing border */
-        
-        if (p.x == (win.width-1) || p.x == 0) {
-            p.o_rl = (p.o_rl == RIGHT) ? LEFT : RIGHT;
-        }
-
-        if (p.y == (win.height-1) || p.y == 0) {
-            p.o_ud = (p.o_ud == UP) ? DOWN : UP;
-        }
-        
 // Co-creator - Norman Le
-        wborder(win.win, '|','|','-','-','+','+','+','+');
-        mvwprintw(win.win, p.y, p.x, "%c", 'o');
-        printPaddle(&win, &pd);
-        wrefresh(win.win);
-        napms(50);
-        
         switch (c) {
         case 'w':
-          if (pd.top - 1 > 0) {
+          if (pd.top - 2 > 0) {
             pd.top -= 1;
             pd.bottom -= 1;
           }
           break;
         case 's':
-          if (pd.bottom + 1 < my-3) {
+          if (pd.bottom + 1 < my-4) {
             pd.top += 1;
             pd.bottom += 1;
           }
@@ -136,15 +145,14 @@ int main()
         default:
           break;
         }
-        
+       
         wclear(win.win);
-        /* Just bouncing back and forth right now */
-        /* Do some ball movement here */
-        
-        p.x += (p.o_rl == RIGHT) ? 1 : -1;
-        p.y += (p.o_ud == UP) ? -1 : 1;
+        mvwprintw(win.win, p.y, p.x, "%c", 'O');
+        printPaddle(&win, &pd);
+        wborder(win.win, '|','|','-','-','+','+','+','+');
+        wrefresh(win.win);
     }
-    //pthread_join(ball,NULL); 
+    pthread_join(ball,NULL); 
     endwin();
     return 0;
 }
