@@ -35,7 +35,7 @@ void *renderBall(void *vargs)
     if (collision(p,pd)) {
       p->o_rl = (p->o_rl == RIGHT) ? LEFT : RIGHT;
       if (++score % 2 == 0) {
-        acceleration -= 10;
+        acceleration -= 5;
       }
     }
 
@@ -63,5 +63,5 @@ void *renderBall(void *vargs)
 
 int collision(struct pong *p, struct paddle *pd)
 {
-  return p->x == 3 && (p->y >= pd->top && p->y <= pd->bottom);
+  return p->x == 3 && (p->y >= pd->top-1 && p->y <= pd->bottom+1);
 }
