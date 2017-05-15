@@ -35,6 +35,7 @@ struct pong {
 
 struct render {
   struct pong *p;
+  struct paddle *pd;
   struct window *w;
 };
 
@@ -48,9 +49,17 @@ void printPaddle(struct window *window, struct paddle *pd)
   mvwprintw(window->win, pd->bottom+1, 2, "%c", '-');
 }
 
+int collision(struct pong *p, struct paddle *pd)
+{
+  if (p->x == 3 && (p->y >= pd->top && p->y <= pd->bottom))
+    return 1;
+  return 0;
+}
+
 void *renderBall(void *vargs)
 {
   struct render *r = (struct render *) vargs;
+  struct paddle *pd = r->pd;
   struct pong *p = r->p;
   struct window *win = r->w;
 
@@ -58,7 +67,7 @@ void *renderBall(void *vargs)
 
     // TODO: Collision detection here
 
-    if (p->x == (win->width-1) || p->x == 0) {
+    if (collision(p, pd) || p->x == (win->width-1) || p->x == 0) {
         p->o_rl = (p->o_rl == RIGHT) ? LEFT : RIGHT;
     }
 
@@ -123,6 +132,7 @@ int main()
     // Create another thread for rendering ball movement
     r.p = &p;
     r.w = &win;
+    r.pd = &pd;
     pthread_t ball;
     pthread_create(&ball, NULL, renderBall, (void*)&r);
     char c = 'N';
