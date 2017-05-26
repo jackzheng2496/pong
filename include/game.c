@@ -3,6 +3,9 @@
 int gameState;
 int score;
 int acceleration;
+int ai_move;
+
+struct paddle ai_pd;
 
 void create_win(struct window *window)
 {
@@ -14,12 +17,20 @@ void create_win(struct window *window)
 
 void printPaddle(struct window *win, struct paddle *pd)
 {
-  mvwprintw(win->win, pd->top-1, 2, "%c", '-');
+  /*
+  mvwprintw(win->win, pd->top-1, pd->startx+1, "%c", '-');
   for (int i = pd->top; i <= pd->bottom; i++) {
-    mvwprintw(win->win, i, 1, "%c", '|');
-    mvwprintw(win->win, i, 3, "%c", '|');
+    mvwprintw(win->win, i, pd->startx, "%c", '|');
+    mvwprintw(win->win, i, pd->endx, "%c", '|');
   }
-  mvwprintw(win->win, pd->bottom+1, 2, "%c", '-');
+  mvwprintw(win->win, pd->bottom+1, pd->startx+1, "%c", '-');
+  */
+  mvwprintw(win->win, pd->top-1, pd->startx+1, "%c", '-');
+  for (int i = pd->top; i <= pd->bottom; i++) {
+    mvwprintw(win->win, i, pd->startx, "%c", '|');
+    mvwprintw(win->win, i, pd->endx, "%c", '|');
+  }
+  mvwprintw(win->win, pd->bottom+1, pd->startx+1, "%c", '-');
 }
 
 void *renderBall(void *vargs)
@@ -29,13 +40,23 @@ void *renderBall(void *vargs)
   struct pong *p = r->p;
   struct window *win = r->w;
 
+  srand(time(NULL));
+
+  int col = -1;
+  int rng;
+
   while (1) {
     // TODO: Collision detection here
     // Ball movement should behave differently if it hits paddle
-    if (collision(p,pd)) {
+    if ((col = collision(p,pd))) {
       p->o_rl = (p->o_rl == RIGHT) ? LEFT : RIGHT;
-      if (++score % 2 == 0) {
-        acceleration -= 5;
+
+      if (col == 1) {
+        if (++score % 2 == 0) {
+          acceleration -= 5;
+        }
+        rng = rand() % 21;
+        ai_move = (rng >= 10) ? 1 : 0;
       }
     }
 
@@ -63,5 +84,10 @@ void *renderBall(void *vargs)
 
 int collision(struct pong *p, struct paddle *pd)
 {
-  return p->x == 3 && (p->y >= pd->top-1 && p->y <= pd->bottom+1);
+  if (p->x == 3 && (p->y >= pd->top-1 && p->y <= pd->bottom+1))
+    return 1;
+  else if (p->x == ai_pd.startx && (p->y >= ai_pd.top-1 && p->y <= ai_pd.bottom+1))
+    return 2;
+  else
+    return 0;
 }

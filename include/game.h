@@ -5,10 +5,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <time.h>
 
 extern int gameState;
 extern int score;
 extern int acceleration;
+extern int ai_move;
 
 enum ORIENTATION {
   RIGHT,
@@ -28,7 +30,12 @@ struct window {
 struct paddle {
   int top;
   int bottom;
+  int startx;
+  int endx;
+  int center;
 };
+
+extern struct paddle ai_pd;
 
 struct pong {
   int x;

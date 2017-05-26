@@ -3,21 +3,9 @@
 int gameState;
 int score;
 int acceleration;
+int ai_move;
 
-struct ai {
-  int ai_y;
-  struct window *win;
-  struct pong *p;
-};
-
-void *renderAI(void *vargs)
-{
-  struct ai *p_ai = (struct ai *) vargs;
-  while (gameState) {
-    p_ai->ai_y = p_ai->p->y;
-  }
-  return NULL;
-}
+extern struct paddle ai_pd;
 
 int main()
 {
@@ -59,8 +47,15 @@ int main()
 
     struct paddle pd = {
       .top = -3+(my>>1), 
-      .bottom = 3+(my>>1)
+      .bottom = 3+(my>>1),
+      .startx = 1,
+      .endx = 3
     };
+
+    ai_pd.top = ai_y-3;
+    ai_pd.bottom = ai_y+3;
+    ai_pd.startx = mx-6;
+    ai_pd.endx = mx-4;
 
     struct render r = {
       .p = &p,
@@ -70,6 +65,7 @@ int main()
 
     acceleration = 50;
     gameState = 1;
+    ai_move = 1;
     c = 'N';
     /*
      * well, this is suppose to remove cursor, 
@@ -80,16 +76,6 @@ int main()
 
     // Create another thread for rendering ball movement
     pthread_create(&ball, NULL, renderBall, (void*)&r);
-
-    // Create another thread for opponent 'AI' paddle
-    pthread_t ai;
-    struct ai p_ai;
-
-    p_ai.ai_y = ai_y;
-    p_ai.win = &win;
-    p_ai.p = &p;
-
-    pthread_create(&ai, NULL, renderAI, (void*)&p_ai);
 
     while (gameState) {
         c = getch();
@@ -120,8 +106,24 @@ int main()
         printPaddle(&win, &pd);
 
         // Rendering AI paddle
-        mvwprintw(win.win, p_ai.ai_y, mx-5, "%c", 'P');
+        //mvwprintw(win.win, ai_y, mx-5, "%c", 'P');
+        printPaddle(&win, &ai_pd);
 
+        // Update position of paddle (random)
+        //ai_y = p.y;
+
+        if (ai_move) {
+          if (p.y-3 > 0 && p.y+3 < my-4) {
+            ai_pd.top = p.y-3;
+            ai_pd.bottom = p.y+3;
+          } else if (p.y-3 <= 0) {
+            ai_pd.top = 2;
+            ai_pd.bottom = ai_pd.top+6;
+          } else {
+            ai_pd.bottom = my-5;
+            ai_pd.top = ai_pd.bottom-6;
+          }
+        }
         // Rendering window
         wborder(win.win, '|','|','-','-','+','+','+','+');
 
